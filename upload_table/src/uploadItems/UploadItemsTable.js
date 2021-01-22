@@ -1,8 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import ItemsTable from './components/ItemsTable'
+import axios from 'axios';
+
 import "./uploadTable.css"
+import "./uploadBox.css"
 import "./buttons.css"
+
 
 export default class UploadItemsTable extends React.Component {
     constructor(){
@@ -33,8 +37,14 @@ export default class UploadItemsTable extends React.Component {
               ],
             fileName: "test",
             margin: 100,
+
+            // upload box
+            selectedFile: null,
+
+
         }
     }
+
 
     handleClick = (e) => {
       console.log(e)
@@ -89,13 +99,52 @@ export default class UploadItemsTable extends React.Component {
 
     // ToDo - move header to a separate component
 
+    // UPLOAD BOX
+    onChangeBoxHandler = (e) => {
+      console.log(e.target.files[0]);
+      this.setState({
+        selectedFile: e.target.files[0],
+        loaded: 0
+      })
+    }
+
+    onClickBoxHandler = () => {
+      const data = new FormData() 
+      data.append('file', this.state.selectedFile)
+      axios.post("http://127.0.0.1:5000/items/upload_file", data, { 
+        // receive two parameter endpoint url ,form data 
+        
+        })
+        .then(res => { // then print response status
+                  console.log(res.statusText)
+                  if(res.data && res.data.length > 0){
+                    let items = res.data;
+                    this.setState({items: [...items]})
+                  }
+                  
+              })
+    }
+
 
     render(){
 
         return (
 
             <div class="container" style={{margin: "auto", width:"80%"}}>
-                <p>{ this.state.fileName }123</p>
+
+            <p>{ this.state.fileName }123</p>
+
+
+              <div class="col-md-6" style={{ position: "relative", width:"20%", }}>
+                <form method="post" action="#" id="#">
+                  <div class="form-group files">
+                      <label>Upload Your File </label>
+                      <input type="file" class="form-control" multiple="" onChange={this.onChangeBoxHandler} />
+                  </div>
+                </form>
+                <button type="button" class="btn btn-success btn-block submit" onClick={this.onClickBoxHandler}>Upload</button> 
+              </div>
+
                 <div style={{float:"right", position:"relative"}}>   
                         {  "Margin:" + this.state.margin }
                         <button onClick={this.increaseMargin}>+</button>
